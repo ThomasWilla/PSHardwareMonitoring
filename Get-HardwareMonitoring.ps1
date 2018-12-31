@@ -47,13 +47,30 @@ class HardwareMonitor {
             $Command = {new-item -type directory -force "c:\Script\PSHardwareMonitor\"}
             Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command      
             Copy-Item $DLLPath -ToSession $this.RemoteSession -Destination "C:\Script\PSHardwareMonitor\" -Recurse -Force
+            #Remove Security Trust download from Internet
+            $command = {Unblock-File -Path "C:\Script\PSHardwareMonitor\OpenHardwareMonitorLib.dll"}
+            Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command 
             $this.LastInfoMessage = "Open Hardware Monitoring DLL not exsist -> copied"
             $this.TestHardwareMonitorDLL()
         } 
-
-
     }    
 
-    
+    #Build OpenDLL Object
+    [void] BuilsOpenDLLObject(){
+
+        #Parameter Bindings
+        $CPUEnable=$this.EnableCPU
+        $GPUEnable=$this.EnableGPU
+      
+        $command = {
+        param($CPUEnable, $argument2)
+        [System.Reflection.Assembly]::LoadFile("C:\Script\PSHardwareMonitor\OpenHardwareMonitorLib.dll") | Out-Null
+        $PCHARDWARE = New-Object OpenHardwareMonitor.Hardware.Computer
+        $PCHARDWARE.CPUEnabled = $CPUEnable
+        $PCHARDWARE.GPUEnabled = $GPUEnable
+        $PCHARDWARE.Open()
+        }   
+        Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command -ArgumentList ($CPUEnable, $GPUEnable) 
+    }
     
 }
