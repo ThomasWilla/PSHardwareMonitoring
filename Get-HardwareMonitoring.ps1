@@ -88,12 +88,12 @@ class HardwareMonitor {
         #Get CPU Value
 
         if ($this.EnableCPU){
-        $command = {$PCHARDWARE.Hardware.Sensors | select SensorType,Name,Index,Min,Max,Value | ? {$_.SensorType -eq "Temperature"} | ft}
+        $command = {$PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table}
         $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
         }
 
         if ($this.EnableGPU){
-            $command = {$PCHARDWARE.Hardware.Sensors | select SensorType,Name,Index,Min,Max,Value | ? {$_.SensorType -eq "Temperature"} | ft}
+            $command = {$PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table}
             $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
             }
 
