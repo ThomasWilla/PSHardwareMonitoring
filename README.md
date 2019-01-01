@@ -18,6 +18,7 @@ Copy the ps1 and dll to your Computer:
 **Build the Class Object**
 ```
 $HARDWAREMONITOR = [HardwareMonitor]::new()
+```
 
 **Set required Parameters**
 ```
@@ -40,8 +41,6 @@ $HARDWAREMONITOR.Values()
 ```
 $HARDWAREMONITOR.DestroyRemoteSession()
 ```
-
-
 
 ### Prerequisites
 
