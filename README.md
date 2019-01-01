@@ -52,8 +52,8 @@ What things you need to install the software and how to install them
 winrm quickconfig
 ```
 
-*PowerShell 5 is required
-*OpenHardwareMonitor (dll) is required. This will be copied automaticly when it is not present
+* PowerShell 5 is required
+* OpenHardwareMonitor (dll) is required. This will be copied automaticly when it is not present
 
 
 ## Deployment
