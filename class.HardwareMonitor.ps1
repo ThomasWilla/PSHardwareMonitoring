@@ -22,7 +22,12 @@ class HardwareMonitor {
 
     #Test OnlineState
     [void] TestOnlineState (){
-        $this.OnlineState = (Test-NetConnection -ComputerName $this.Computername).PingSucceeded
+        if (Test-Connection -Server $this.Computername -Count 1 -ea SilentlyContinue){
+            $this.OnlineState = $true
+        }
+        else {
+            $this.OnlineState = $false
+        }
         } 
     
     #Build Remote PS Session
@@ -89,7 +94,7 @@ class HardwareMonitor {
 
         $command = {
             $PCHARDWARE.Hardware.Update()
-            $PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table
+            $PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"}
         }
         $this.Values = Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
         

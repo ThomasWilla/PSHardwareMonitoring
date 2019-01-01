@@ -14,7 +14,7 @@ Copy the ps1 and dll to your Computer:
 
 **Load the class**
 ```
-./class.PSHardwareMonitor.ps1
+ . .\class.HardwareMonitor.ps1
 ```
 
 **Build the Class Object**
