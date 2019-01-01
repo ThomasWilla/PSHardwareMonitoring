@@ -65,7 +65,7 @@ class HardwareMonitor {
     }    
 
     #Build OpenDLL Object
-    [void] BuilsOpenDLLObject(){
+    [void] BuildOpenDLLObject(){
 
         #Parameter Bindings
         $CPUEnable=$this.EnableCPU
@@ -87,20 +87,17 @@ class HardwareMonitor {
 
         #Get CPU Value
 
-        if ($this.EnableCPU){
-        $command = {$PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table}
-        $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
+        $command = {
+            $PCHARDWARE.Hardware.Update()
+            $PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table
         }
-
-        if ($this.EnableGPU){
-            $command = {$PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"} | Format-Table}
-            $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
-            }
+        $this.Values = Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
+        
 
         $this.TimeStamp = get-date -Format "dd/MM/yyyy HH:mm:ss"
     }
 
-    # GetHardwareValuesFromReomtePC
+    # GetHardwareValuesFromRemotePC
     [void] GetHardwareValuesFromReomtePC (){
         $this.TestOnlineState()
         
@@ -114,16 +111,17 @@ class HardwareMonitor {
             #Test If DLL exsist
             If ($this.OpenHardwareMonitorDLL -eq $false){
                 $this.TestHardwareMonitorDLL()
-                $this.BuilsOpenDLLObject()
+                $this.BuildOpenDLLObject()
             }
           
                        
             $this.GetHardwareValuesFromSession()
         }
     }
-    
 
 
 
 
-}
+
+
+} #Class End
