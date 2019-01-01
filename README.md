@@ -4,11 +4,13 @@ This Powershell Class catch the min/max/current value from the CPU and GPU tempe
 
 ## Getting Started
 Copy the ps1 and dll to your Computer:
+
+```
 |DIR
 |class.PSHardwareMonitor.ps1
 |-DLL
 |--OpenHardwareMonitorLib.dll
-
+```
 
 **Load the class**
 ```
