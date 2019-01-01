@@ -2,14 +2,15 @@
 
 class HardwareMonitor {
 
-    #Proberties
+    #properties
     [String] $Computername
     [Bool] $OnlineState
     [Bool] $OpenHardwareMonitorDLL
     [Bool] $EnableCPU = $true
     [Bool] $EnableGPU = $false
     [System.Management.Automation.Runspaces.PSSession] $RemoteSession
-    
+    [System.Object]$Values
+    [datetime]$TimeStamp
     [String] $LastInfoMessage
     [String] $LastErrorMessage
 
@@ -34,7 +35,15 @@ class HardwareMonitor {
         else{
         $this.LastErrorMessage = "no conection established"
         }
-    }        
+    } 
+    
+    #Destroy Remote Sessin
+    [void] DestroyRemoteSession (){
+        Remove-PSSession $this.RemoteSession
+        $this.RemoteSession = $null
+        $this.OpenHardwareMonitorDLL = $false
+    }
+    
     #Test HardwareMonitorDLL
     [void] TestHardwareMonitorDLL (){
         $DLLPath = (Get-Item -Path ".\").FullName + "\DLL\OpenHardwareMonitorLib.dll"
@@ -63,7 +72,7 @@ class HardwareMonitor {
         $GPUEnable=$this.EnableGPU
       
         $command = {
-        param($CPUEnable, $argument2)
+        param($CPUEnable, $GPUEnable)
         [System.Reflection.Assembly]::LoadFile("C:\Script\PSHardwareMonitor\OpenHardwareMonitorLib.dll") | Out-Null
         $PCHARDWARE = New-Object OpenHardwareMonitor.Hardware.Computer
         $PCHARDWARE.CPUEnabled = $CPUEnable
@@ -73,4 +82,48 @@ class HardwareMonitor {
         Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command -ArgumentList ($CPUEnable, $GPUEnable) 
     }
     
+    # GetHardwareValues from Session
+    [void] GetHardwareValuesFromSession (){
+
+        #Get CPU Value
+
+        if ($this.EnableCPU){
+        $command = {$PCHARDWARE.Hardware.Sensors | select SensorType,Name,Index,Min,Max,Value | ? {$_.SensorType -eq "Temperature"} | ft}
+        $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
+        }
+
+        if ($this.EnableGPU){
+            $command = {$PCHARDWARE.Hardware.Sensors | select SensorType,Name,Index,Min,Max,Value | ? {$_.SensorType -eq "Temperature"} | ft}
+            $this.Values += Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
+            }
+
+        $this.TimeStamp = get-date -Format "dd/MM/yyyy HH:mm:ss"
+    }
+
+    # GetHardwareValuesFromReomtePC
+    [void] GetHardwareValuesFromReomtePC (){
+        $this.TestOnlineState()
+        
+        if ($this.OnlineState -eq $true){
+
+              #Test If Remotesession is Open
+              if ($this.RemoteSession -eq $null){
+                $this.BuildRemoteSession()
+            }
+
+            #Test If DLL exsist
+            If ($this.OpenHardwareMonitorDLL -eq $false){
+                $this.TestHardwareMonitorDLL()
+                $this.BuilsOpenDLLObject()
+            }
+          
+                       
+            $this.GetHardwareValuesFromSession()
+        }
+    }
+    
+
+
+
+
 }
