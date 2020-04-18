@@ -1,16 +1,9 @@
 # PSHardwareMonitoring
 
-This Powershell Class catch the min/max/current value from the CPU and GPU temperature. Load is comming...
+This Powershell Class catch the min/max/current value from the CPU and GPU temperature
 
 ## Getting Started
-Copy the ps1 and dll to your Computer:
-
-```
-|DIR
-|class.PSHardwareMonitor.ps1
-|-DLL
-|--OpenHardwareMonitorLib.dll
-```
+Clone this Repo
 
 **Load the class**
 ```
@@ -24,25 +17,30 @@ $HARDWAREMONITOR = [HardwareMonitor]::new()
 
 **Set required Parameters**
 ```
-$HARDWAREMONITOR.ComputerName = "COMPUTERNAME"
 $HARDWAREMONITOR.EnableCPU = $true|$false {default: $True}
 $HARDWAREMONITOR.EnableGPU = $true|$false {default: $False}
 ```
 
 **Get Value from System**
 ```
-$HARDWAREMONITOR.GetHardwareValuesFromReomtePC()
+$HARDWAREMONITOR.GetMeasurementValues()
 ```
 
 **Show Value from System**
 ```
-$HARDWAREMONITOR.Values()
+$HARDWAREMONITOR.Temperatures()
 ```
 
-**Destroy Session**
+**Show Logging
 ```
-$HARDWAREMONITOR.DestroyRemoteSession()
+$HARDWAREMONITOR.HardwareMonitorLog
 ```
+
+**Show Last Error
+```
+$HARDWAREMONITOR.LastErrorMessage
+```
+
 
 ### Prerequisites
 

@@ -3,130 +3,108 @@
 class HardwareMonitor {
 
     #properties
-    [String] $Computername
-    [Bool] $OnlineState
-    [Bool] $OpenHardwareMonitorDLL
+
+    #[System.Management.Automation.Runspaces.PSSession] $RemoteSession
+    [System.Collections.ArrayList] $HardwareMonitorLog
+    [String] $LastErrorMessage
+    [String]$OpenHWMonitoringDLLVersion
     [Bool] $EnableCPU = $true
     [Bool] $EnableGPU = $false
-    [System.Management.Automation.Runspaces.PSSession] $RemoteSession
-    [System.Object]$Values
-    [datetime]$TimeStamp
-    [String] $LastInfoMessage
-    [String] $LastErrorMessage
+    [System.Object]$Temperatures
+    hidden [string] $HardwareMonitorDLLPath = "\DLL\OpenHardwareMonitorLib.dll"
+    [System.Object] $PCHARDWARE
 
 
 
     #Constructor
     HardwareMonitor(){
-    }
+        $this.CheckHardwareMonitoringDLL()
+        }
 
-    #Test OnlineState
-    [void] TestOnlineState (){
-        if (Test-Connection -Server $this.Computername -Count 1 -ea SilentlyContinue){
-            $this.OnlineState = $true
-        }
-        else {
-            $this.OnlineState = $false
-        }
-        } 
+    hidden [void] CheckHardwareMonitoringDLL()
+    {
+        $this.InitialLog()
+
+        try{
+            Get-Item  -Path "$($PSScriptRoot)$($this.HardwareMonitorDLLPath)" -ErrorAction  Stop
+            $this.OpenHWMonitoringDLLVersion=(Get-Item .\DLL\OpenHardwareMonitorLib.dll).VersionInfo.FileVersion      
+        }  
     
-    #Build Remote PS Session
-    [void] BuildRemoteSession (){
-
-        $this.TestOnlineState()
-        If ($this.OnlineState -eq $true){
-        $this.RemoteSession = New-PsRemoteSession -ComputerName $this.Computername
+        catch{
+            $this.DoLog("Error","Hardware Monitoring File was not Found")
+            throw $_.Exception.Message
         }
-        else{
-        $this.LastErrorMessage = "no conection established"
+
+        try{
+            Get-Item -Stream Zone.Identifier -Path "$($PSScriptRoot)$($this.HardwareMonitorDLLPath)" -ErrorAction  Stop
+            Unblock-File "$($PSScriptRoot)$($this.HardwareMonitorDLLPath)" 
         }
-    } 
-    
-    #Destroy Remote Sessin
-    [void] DestroyRemoteSession (){
-        Remove-PSSession $this.RemoteSession
-        $this.RemoteSession = $null
-        $this.OpenHardwareMonitorDLL = $false
-    }
-    
-    #Test HardwareMonitorDLL
-    [void] TestHardwareMonitorDLL (){
-        $DLLPath = (Get-Item -Path ".\").FullName + "\DLL\OpenHardwareMonitorLib.dll"
-        $Command = {Test-Path -Path "C:\Script\PSHardwareMonitor"}
-
-        if (Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command){
-            $this.OpenHardwareMonitorDLL = $true
-        }
-        else{
-            $Command = {new-item -type directory -force "c:\Script\PSHardwareMonitor\"}
-            Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command      
-            Copy-Item $DLLPath -ToSession $this.RemoteSession -Destination "C:\Script\PSHardwareMonitor\" -Recurse -Force
-            #Remove Security Trust download from Internet
-            $command = {Unblock-File -Path "C:\Script\PSHardwareMonitor\OpenHardwareMonitorLib.dll"}
-            Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command 
-            $this.LastInfoMessage = "Open Hardware Monitoring DLL not exsist -> copied"
-            $this.TestHardwareMonitorDLL()
-        } 
-    }    
-
-    #Build OpenDLL Object
-    [void] BuildOpenDLLObject(){
-
-        #Parameter Bindings
-        $CPUEnable=$this.EnableCPU
-        $GPUEnable=$this.EnableGPU
-      
-        $command = {
-        param($CPUEnable, $GPUEnable)
-        [System.Reflection.Assembly]::LoadFile("C:\Script\PSHardwareMonitor\OpenHardwareMonitorLib.dll") | Out-Null
-        $PCHARDWARE = New-Object OpenHardwareMonitor.Hardware.Computer
-        $PCHARDWARE.CPUEnabled = $CPUEnable
-        $PCHARDWARE.GPUEnabled = $GPUEnable
-        $PCHARDWARE.Open()
-        }   
-        Invoke-Command -Session $this.RemoteSession -ScriptBlock $Command -ArgumentList ($CPUEnable, $GPUEnable) 
-    }
-    
-    # GetHardwareValues from Session
-    [void] GetHardwareValuesFromSession (){
-
-        #Get CPU Value
-
-        $command = {
-            $PCHARDWARE.Hardware.Update()
-            $PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"}
-        }
-        $this.Values = Invoke-Command -Session $this.RemoteSession -ScriptBlock $command
         
+        catch{
+            $this.DoLog("Information","File was tested on Zone.Identifier and was clear")
+            $this.InitialHardWareMonitoringObject()
+           
 
-        $this.TimeStamp = get-date -Format "dd/MM/yyyy HH:mm:ss"
-    }
-
-    # GetHardwareValuesFromRemotePC
-    [void] GetHardwareValuesFromReomtePC (){
-        $this.TestOnlineState()
-        
-        if ($this.OnlineState -eq $true){
-
-              #Test If Remotesession is Open
-              if ($this.RemoteSession -eq $null){
-                $this.BuildRemoteSession()
-            }
-
-            #Test If DLL exsist
-            If ($this.OpenHardwareMonitorDLL -eq $false){
-                $this.TestHardwareMonitorDLL()
-                $this.BuildOpenDLLObject()
-            }
-          
-                       
-            $this.GetHardwareValuesFromSession()
         }
+    }#End Constructor
+
+
+    hidden [void] InitialLog(){
+        $this.HardwareMonitorLog = New-Object System.Collections.ArrayList
+    }#End Initial Log
+           
+    
+    [void] DoLog($LogLevel,$LogMessage){
+        
+        $LogEntry = [pscustomobject]@{
+            Time=(Get-Date)
+            Level= $LogLevel
+            Message= $LogMessage
+        }
+   
+
+        switch ($Loglevel) {
+            "Error" {
+                    $this.LastErrorMessage = "$($logentry.Time) | $($LogEntry.Message)"
+                    $this.HardwareMonitorLog.Add($LogEntry)   
+                }
+            Default {$this.HardwareMonitorLog.Add($LogEntry)}
+        }
+    
+    }#End Log
+    
+    hidden [void] InitialHardWareMonitoringObject(){
+        try{
+            [System.Reflection.Assembly]::LoadFile("$($PSScriptRoot)$($this.HardwareMonitorDLLPath)") | Out-Null
+            $this.PCHARDWARE = New-Object OpenHardwareMonitor.Hardware.Computer
+            $this.PCHARDWARE.open()
+            $this.DoLog("Information","Class OpenHardwareMonitor Loaded")
+            }
+        catch{
+            $this.DoLog("Error","Could not load OpenHardwareMonitorLib.dll")
+            throw $_.Exception.Message
+        }
+
+    }#End Initial .Net Class Hwardware monitoring
+    
+
+    hidden [void] SetMeasuremetComponents(){
+        $this.PCHARDWARE.CPUEnabled = $this.EnableCPU
+        $this.PCHARDWARE.GPUEnabled = $this.EnableGPU
+    }
+
+    [System.Object] GetMeasurementValues(){
+
+        $this.SetMeasuremetComponents()
+        $this.PCHARDWARE.Hardware.Update()
+        $this.Temperatures = $this.PCHARDWARE.Hardware.Sensors | Select-Object SensorType,Name,Index,Min,Max,Value | Where-Object {$_.SensorType -eq "Temperature"}
+        return $this.Temperatures 
+
     }
 
 
-
-
-
+ 
+    
 
 } #Class End
+
