@@ -27,7 +27,7 @@ class HardwareMonitor {
 
         try{
             Get-Item  -Path "$($PSScriptRoot)$($this.HardwareMonitorDLLPath)" -ErrorAction  Stop
-            $this.OpenHWMonitoringDLLVersion=(Get-Item .\DLL\OpenHardwareMonitorLib.dll).VersionInfo.FileVersion      
+            $this.OpenHWMonitoringDLLVersion=(Get-Item .\Private\DLL\OpenHardwareMonitorLib.dll).VersionInfo.FileVersion      
         }  
     
         catch{

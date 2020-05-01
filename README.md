@@ -1,18 +1,25 @@
 # PSHardwareMonitoring
 
-This Powershell Class catch the min/max/current value from the CPU and GPU temperature
+This Powershell Module catch the min/max/current value from the CPU and GPU temperature
 
 ## Getting Started
-Clone this Repo
+Clone this Repo and Import Module
 
-**Load the class**
+**Commands:**
 ```
- . .\class.HardwareMonitor.ps1
+Get-HWMeasurement | Reports all Measurement Values
+Set-HWMeasuremet | Enable CPU/GPU
+Get-HWInformationLog | Show the Logging
+Get-HWObject | Show the Object Detailinformation
+New-HWCustomObject | Create a Custom Object fromt Type HardwareMonitor. Class Description see below
 ```
 
-**Build the Class Object**
+## Class Description Type HardwareMonitoring
+
+
+**Build the Custom Class Object**
 ```
-$HARDWAREMONITOR = [HardwareMonitor]::new()
+New-HWCustomObject -CustomObjectName "HARDWAREMONITOR"
 ```
 
 **Set required Parameters**
@@ -46,14 +53,8 @@ $HARDWAREMONITOR.LastErrorMessage
 
 What things you need to install the software and how to install them
 
-**WinRM must be Enable**
-
-```
-winrm quickconfig
-```
-
 * PowerShell 5 is required
-* OpenHardwareMonitor (dll) is required. This will be copied automaticly when it is not present
+* OpenHardwareMonitor (dll) is required (Included in Project)
 
 
 ## Deployment
@@ -62,10 +63,12 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [OpenHardwareMonitor](https://openhardwaremonitor.org/) - Version Alpha 0.8.0.3
+* [OpenHardwareMonitor](https://openhardwaremonitor.org/)
 
 
 ## Versioning
+01.05.2020: Extend as Module
+01.04:2020 : Final Class
 01.01.2019: Final Alpha 0.8
 
 
