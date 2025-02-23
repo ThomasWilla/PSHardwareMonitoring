@@ -11,7 +11,7 @@ class HardwareMonitor {
     [Bool] $EnableCPU = $true
     [Bool] $EnableGPU = $false
     [System.Object]$Temperatures
-    hidden [string] $HardwareMonitorDLLPath = "\DLL\OpenHardwareMonitorLib.dll"
+    hidden [string] $HardwareMonitorDLLPath = "\DLL\LibreHardwareMonitorLib.dll"
     [System.Object] $PCHARDWARE
 
 
@@ -76,12 +76,12 @@ class HardwareMonitor {
     hidden [void] InitialHardWareMonitoringObject(){
         try{
             [System.Reflection.Assembly]::LoadFile("$($PSScriptRoot)$($this.HardwareMonitorDLLPath)") | Out-Null
-            $this.PCHARDWARE = New-Object OpenHardwareMonitor.Hardware.Computer
+            $this.PCHARDWARE = New-Object LibreHardwareMonitor.Hardware.Computer
             $this.PCHARDWARE.open()
-            $this.DoLog("Information","Class OpenHardwareMonitor Loaded")
+            $this.DoLog("Information","Class LibreHardwareMonitor Loaded")
             }
         catch{
-            $this.DoLog("Error","Could not load OpenHardwareMonitorLib.dll")
+            $this.DoLog("Error","Could not load LibreHardwareMonitorLib.dll")
             throw $_.Exception.Message
         }
 
@@ -89,8 +89,8 @@ class HardwareMonitor {
     
 
     hidden [void] SetMeasuremetComponents(){
-        $this.PCHARDWARE.CPUEnabled = $this.EnableCPU
-        $this.PCHARDWARE.GPUEnabled = $this.EnableGPU
+        $this.PCHARDWARE.IsCPUEnabled = $this.EnableCPU
+        $this.PCHARDWARE.IsGPUEnabled = $this.EnableGPU
     }
 
     [System.Object] GetMeasurementValues(){

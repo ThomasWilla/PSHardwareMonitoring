@@ -64,10 +64,11 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [OpenHardwareMonitor](https://openhardwaremonitor.org/)
+* [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor?tab=readme-ov-file)
 
 
 ## Versioning
+22.02.2025: Change to LibreHardwareMonitoring
 01.05.2020: Extend as Module
 01.04:2020 : Final Class
 01.01.2019: Final Alpha 0.8
