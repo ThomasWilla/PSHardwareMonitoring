@@ -1,7 +1,7 @@
 function Get-HWObject {
     [CmdletBinding()]
     param (
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('ShowObject','ShowMembers')]
         [String]
         $Show

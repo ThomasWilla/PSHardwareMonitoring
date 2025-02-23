@@ -1,6 +1,6 @@
 # PSHardwareMonitoring
 
-This Powershell Module catch the min/max/current value from the CPU and GPU temperature. This Module is based on the OpenHardwaremonitoring Project and will not use the default Windows CIM Class. Thereby all CPUs and GPUs are supported. For more Information see https://openhardwaremonitor.org/
+This Powershell Module catch the min/max/current value from the CPU and GPU temperature. This Module is based on the OpenHardwaremonitoring Project and will not use the default Windows CIM Class. Thereby all CPUs and GPUs are supported. For more Information see https://github.com/LibreHardwareMonitor/LibreHardwareMonitor?tab=readme-ov-file
 
 ## Getting Started
 
@@ -64,13 +64,14 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [OpenHardwareMonitor](https://openhardwaremonitor.org/)
+* [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor?tab=readme-ov-file)
 
 
 ## Versioning
-01.05.2020: Extend as Module
-01.04:2020 : Final Class
-01.01.2019: Final Alpha 0.8
+- 22.02.2025: Change to LibreHardwareMonitoring
+- 01.05.2020: Extend as Module
+- 01.04:2020 : Final Class
+- 01.01.2019: Final Alpha
 
 
 ## Authors
