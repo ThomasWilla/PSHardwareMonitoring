@@ -4,7 +4,7 @@ This Powershell Module catch the min/max/current value from the CPU and GPU temp
 
 ## Getting Started
 
-Install-Module -Name PSHardwareMonitor
+Clone Repository
 
 **Commands:**
 ```
